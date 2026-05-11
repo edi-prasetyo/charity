@@ -25,18 +25,34 @@ class DonationPage extends ConsumerWidget {
         foregroundColor: Colors.black,
       ),
       body: RefreshIndicator(
-        // Trigger refresh data
+        // Menggunakan ref.refresh untuk memicu penarikan data ulang dari API
         onRefresh: () => ref.refresh(myDonationsProvider.future),
         child: donationsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(child: Text('Terjadi kesalahan: $err')),
+          error: (err, stack) => SingleChildScrollView(
+            // physics ini penting agar halaman error tetap bisa ditarik untuk refresh
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.8,
+              child: Center(child: Text('Terjadi kesalahan: $err')),
+            ),
+          ),
           data: (donations) {
             if (donations.isEmpty) {
-              return const Center(child: Text('Belum ada riwayat donasi'));
+              return SingleChildScrollView(
+                // physics ini penting agar halaman kosong tetap bisa ditarik untuk refresh
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  child: const Center(child: Text('Belum ada riwayat donasi')),
+                ),
+              );
             }
 
             return ListView.builder(
               padding: const EdgeInsets.all(16),
+              // physics ini penting agar daftar pendek tetap bisa ditarik untuk refresh
+              physics: const AlwaysScrollableScrollPhysics(),
               itemCount: donations.length,
               itemBuilder: (context, index) {
                 final donation = donations[index];

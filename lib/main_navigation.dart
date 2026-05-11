@@ -10,6 +10,7 @@ import 'core/services/auth_service.dart';
 import 'modules/auth/controllers/auth_controller.dart';
 import 'modules/campaign/controllers/campaign_controller.dart'; // Contoh provider campaign
 
+import 'modules/donation/controllers/donation_controller.dart';
 import 'modules/home/pages/home_page.dart';
 import 'modules/campaign/pages/campaign_page.dart';
 import 'modules/donation/pages/donation_page.dart';
@@ -52,7 +53,7 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
         ref.invalidate(campaignListProvider);
         break;
       case 2:
-        // Jika ada provider khusus donasi, masukkan di sini
+        ref.invalidate(myDonationsProvider);
         break;
       case 3:
         // ref.invalidate(authServiceProvider);

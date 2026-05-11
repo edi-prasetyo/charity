@@ -56,10 +56,11 @@ class DonationItem {
 }
 
 class Campaign {
+  final String title;
   final String description;
-  Campaign({required this.description});
+  Campaign({required this.description, required this.title});
   factory Campaign.fromJson(Map<String, dynamic> json) =>
-      Campaign(description: json["description"]);
+      Campaign(title: json["title"], description: json["description"]);
 }
 
 class Payment {
