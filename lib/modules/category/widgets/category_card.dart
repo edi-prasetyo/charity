@@ -15,65 +15,48 @@ class CategoryCard extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         child: Ink(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // 🔥 ICON / IMAGE CONTAINER
                 Container(
-                  height: 68,
-                  width: 68,
+                  height: 64,
+                  width: 64,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [AppColors.successColor, AppColors.successColor],
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.blue.withAlpha(25),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
+                    color: AppColors.backgroundColorGrey,
+                    shape: BoxShape.circle,
                   ),
-                  child: Center(
-                    child: category.image != null
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.network(
-                              category.image!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(
-                                    MingCuteIcons.mgc_hand_heart_line,
-                                    color: Colors.white,
-                                    size: 30,
-                                  ),
-                            ),
-                          )
-                        : const Icon(
-                            MingCuteIcons.mgc_hand_heart_line,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                  ),
+                  child: Center(child: _buildImage()),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
+                // 🔥 TITLE
                 Text(
                   category.name,
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                     height: 1.3,
                     color: Color(0xFF1F2937),
-                    letterSpacing: 0.2,
                   ),
                 ),
               ],
@@ -81,6 +64,33 @@ class CategoryCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  /// 🔥 Handle image / fallback icon
+  Widget _buildImage() {
+    if (category.image != null && category.image!.isNotEmpty) {
+      return ClipOval(
+        child: Image.network(
+          category.image!,
+          width: 32,
+          height: 32,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(
+              MingCuteIcons.mgc_hand_heart_line,
+              color: AppColors.successColor,
+              size: 28,
+            );
+          },
+        ),
+      );
+    }
+
+    return const Icon(
+      MingCuteIcons.mgc_hand_heart_line,
+      color: AppColors.successColor,
+      size: 28,
     );
   }
 }

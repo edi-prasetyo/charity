@@ -16,6 +16,7 @@ class AppColors {
   static const Color gold = Color(0xFFd4af38);
   static const Color highlighterOrange = Color(0xFFD0021B);
   static const Color backgroundColorGrey = Color(0xFFEFEFEF);
+  static const Color backgroundBody = Color(0xFFF8FAFC);
   static const Color separatorGrey = Color(0xFFEAEAEA);
   static const Color whiteColor = Color(0xFFFFFFFF);
   static const Color blackColor = Color(0xFF000000);

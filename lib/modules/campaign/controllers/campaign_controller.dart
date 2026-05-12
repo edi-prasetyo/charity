@@ -4,7 +4,7 @@ import '../models/campaign_model.dart';
 
 // Provider untuk fetch list campaigns
 final campaignListProvider = FutureProvider<List<Campaign>>((ref) async {
-  final dio = ref.watch(dioProvider);
+  final dio = ref.watch(publicProvider);
   final response = await dio.get('/campaigns');
 
   // Masuk ke data -> data (karena response berstruktur pagination Laravel)
@@ -27,7 +27,7 @@ final campaignDetailProvider = FutureProvider.family<Campaign, int>((
   ref,
   id,
 ) async {
-  final dio = ref.watch(dioProvider);
+  final dio = ref.watch(publicProvider);
   final response = await dio.get('/campaigns/$id');
 
   return Campaign.fromJson(response.data['data']);
@@ -38,7 +38,7 @@ final campaignsByCategoryProvider = FutureProvider.family<List<Campaign>, int>((
   ref,
   categoryId,
 ) async {
-  final dio = ref.watch(dioProvider);
+  final dio = ref.watch(publicProvider);
   final response = await dio.get('/campaigns/category/$categoryId');
 
   // Masuk ke data -> data (struktur paginasi Laravel)
@@ -51,7 +51,7 @@ final campaignDonationsProvider = FutureProvider.family<List<Donation>, int>((
   id,
 ) async {
   final dio = ref.watch(
-    dioProvider,
+    publicProvider,
   ); // Pastikan dioProvider sudah dikonfigurasi
   final response = await dio.get('/campaigns/$id/donations');
 

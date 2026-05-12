@@ -6,6 +6,15 @@ final secureStorageProvider = Provider((ref) => const SecureService());
 class SecureService {
   final _storage = const FlutterSecureStorage();
   const SecureService();
+  static const _keyIsVerified = 'is_verified';
+
+  Future<void> saveIsVerified(String status) async {
+    await _storage.write(key: _keyIsVerified, value: status);
+  }
+
+  Future<String?> getIsVerified() async {
+    return await _storage.read(key: _keyIsVerified);
+  }
 
   Future<void> saveTokens(String access, String refresh, int expires) async {
     await _storage.write(key: 'access_token', value: access);

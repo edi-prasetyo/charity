@@ -3,7 +3,9 @@ import 'package:charity/modules/campaign/pages/campaign_donation_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../../core/constants/app_color.dart';
 import '../../../core/services/auth_service.dart';
+import '../../../core/widgets/app_button.dart';
 import '../../auth/pages/login_page.dart';
 import '../controllers/campaign_controller.dart';
 import '../widgets/donors_modal.dart';
@@ -50,7 +52,7 @@ class CampaignDetailPage extends ConsumerWidget {
                               // Placeholder saat gambar sedang didownload
                               placeholder: (context, url) => const Center(
                                 child: CircularProgressIndicator(
-                                  color: Color(0xFF0D8456),
+                                  color: AppColors.primaryColor,
                                 ),
                               ),
                               // Widget yang tampil jika gambar gagal dimuat
@@ -101,25 +103,24 @@ class CampaignDetailPage extends ConsumerWidget {
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFE6F4F1),
+                                  color: AppColors.primaryColor.withValues(
+                                    alpha: 0.2,
+                                  ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   campaign.category.name,
                                   style: const TextStyle(
                                     fontSize: 12,
-                                    color: Color(0xFF0D8456),
+                                    color: AppColors.primaryColor,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),
-                              // Info Donatur (Kanan - Bisa Diklik)
-                              // Letakkan di dalam Row sebelah kanan kategori
+
                               DecoratedBox(
                                 decoration: BoxDecoration(
-                                  color: Colors
-                                      .grey
-                                      .shade50, // Background sangat tipis
+                                  color: Colors.grey.shade50,
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
                                     color: Colors.grey.shade200,
@@ -148,7 +149,7 @@ class CampaignDetailPage extends ConsumerWidget {
                                           Icons
                                               .favorite_rounded, // Pakai icon hati agar lebih emosional
                                           size: 14,
-                                          color: Color(0xFF0D8456),
+                                          color: AppColors.primaryColor,
                                         ),
                                         const SizedBox(width: 6),
                                         Text(
@@ -200,7 +201,7 @@ class CampaignDetailPage extends ConsumerWidget {
                             child: LinearProgressIndicator(
                               value: campaign.progress,
                               backgroundColor: Colors.grey.shade100,
-                              color: const Color(0xFF0D8456),
+                              color: AppColors.primaryColor,
                               minHeight: 10,
                             ),
                           ),
@@ -228,7 +229,7 @@ class CampaignDetailPage extends ConsumerWidget {
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF0D8456),
+                                      color: AppColors.primaryColor,
                                     ),
                                   ),
                                 ],
@@ -298,7 +299,7 @@ class CampaignDetailPage extends ConsumerWidget {
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -308,7 +309,9 @@ class CampaignDetailPage extends ConsumerWidget {
                     child: SizedBox(
                       width: double.infinity,
                       height: 50,
-                      child: ElevatedButton(
+                      child: AppButton(
+                        title: "Donasi Sekarang",
+                        type: AppButtonType.primary,
                         onPressed: () async {
                           final authService = ref.read(authServiceProvider);
                           bool loggedIn = await authService.isLoggedIn();
@@ -333,21 +336,6 @@ class CampaignDetailPage extends ConsumerWidget {
                             );
                           }
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0D8456),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          "Donasi Sekarang",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
                       ),
                     ),
                   ),
@@ -357,7 +345,7 @@ class CampaignDetailPage extends ConsumerWidget {
           );
         },
         loading: () => const Center(
-          child: CircularProgressIndicator(color: Color(0xFF0D8456)),
+          child: CircularProgressIndicator(color: AppColors.primaryColor),
         ),
         error: (err, stack) =>
             const Center(child: Text("Gagal memuat detail campaign")),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 import 'package:intl/intl.dart';
+import '../../../core/constants/app_color.dart';
+import '../../../core/widgets/app_button.dart';
 import '../../profile/controllers/profile_controller.dart';
 import '../models/campaign_model.dart';
 import 'donation_preview_page.dart';
@@ -134,14 +136,17 @@ class _CampaignDonationPageState extends ConsumerState<CampaignDonationPage> {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.blue.shade600, Colors.blue.shade400],
+                  colors: [
+                    AppColors.primaryColor.withValues(alpha: 1.0),
+                    AppColors.primaryColor.withValues(alpha: 0.6),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.blue.withOpacity(0.3),
+                    color: AppColors.primaryColor.withValues(alpha: 0.5),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
@@ -208,11 +213,13 @@ class _CampaignDonationPageState extends ConsumerState<CampaignDonationPage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isSelected ? Colors.blue : Colors.grey.shade300,
+                        color: isSelected
+                            ? AppColors.primaryColor
+                            : Colors.grey.shade300,
                         width: isSelected ? 2 : 1,
                       ),
                       color: isSelected
-                          ? Colors.blue.withOpacity(0.05)
+                          ? AppColors.primaryColor.withValues(alpha: 0.1)
                           : Colors.white,
                     ),
                     child: Text(
@@ -222,7 +229,9 @@ class _CampaignDonationPageState extends ConsumerState<CampaignDonationPage> {
                         fontWeight: isSelected
                             ? FontWeight.bold
                             : FontWeight.w500,
-                        color: isSelected ? Colors.blue : Colors.black87,
+                        color: isSelected
+                            ? AppColors.primaryColor
+                            : Colors.black87,
                       ),
                     ),
                   ),
@@ -237,7 +246,7 @@ class _CampaignDonationPageState extends ConsumerState<CampaignDonationPage> {
               decoration: InputDecoration(
                 prefixIcon: const Icon(
                   MingCuteIcons.mgc_wallet_4_line,
-                  color: Colors.blue,
+                  color: AppColors.primaryColor,
                 ),
                 prefixText: 'Rp ',
                 hintText: 'Nominal lainnya...',
@@ -329,7 +338,7 @@ class _CampaignDonationPageState extends ConsumerState<CampaignDonationPage> {
                       'Nama Anda tidak akan ditampilkan di publik',
                       style: TextStyle(fontSize: 12),
                     ),
-                    activeColor: Colors.blue,
+                    activeColor: AppColors.primaryColor,
                     value: _isAnonymous,
                     onChanged: (val) => setState(() => _isAnonymous = val),
                   ),
@@ -350,7 +359,7 @@ class _CampaignDonationPageState extends ConsumerState<CampaignDonationPage> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -4),
           ),
@@ -360,27 +369,11 @@ class _CampaignDonationPageState extends ConsumerState<CampaignDonationPage> {
         child: SizedBox(
           width: double.infinity,
           height: 56,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
+          child: AppButton(
+            title: "Lanjutkan",
+            type: AppButtonType.primary,
+            rightIcon: Icons.arrow_forward,
             onPressed: _submitToPreview,
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Lanjutkan',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                SizedBox(width: 8),
-                Icon(MingCuteIcons.mgc_arrow_right_line, size: 20),
-              ],
-            ),
           ),
         ),
       ),
@@ -418,7 +411,7 @@ class _CampaignDonationPageState extends ConsumerState<CampaignDonationPage> {
               fontWeight: readOnly ? FontWeight.normal : FontWeight.w600,
             ),
             decoration: InputDecoration(
-              prefixIcon: Icon(icon, size: 18, color: Colors.blue.shade300),
+              prefixIcon: Icon(icon, size: 18, color: AppColors.primaryColor),
               filled: true,
               fillColor: readOnly
                   ? const Color(0xFFF1F3F5)

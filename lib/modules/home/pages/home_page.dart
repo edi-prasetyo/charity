@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/app_color.dart';
 import '../../campaign/controllers/campaign_controller.dart';
 import '../../campaign/pages/campaign_page.dart';
 import '../widgets/card_urgent.dart';
@@ -12,7 +13,7 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundBody,
       appBar: AppBar(
         title: const Text(
           "Donasi Kita",

@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/app_color.dart';
 import '../controllers/auth_controller.dart';
 import '../models/auth_model.dart';
+import 'forgot_password_page.dart';
+import 'verify_page.dart';
+import 'register_page.dart'; // Import halaman register
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -27,25 +30,40 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
 
-    // Listener untuk navigasi jika login berhasil
+    // Listener untuk menangani navigasi berdasarkan respon API
     ref.listen<AsyncValue<AuthResponse?>>(authControllerProvider, (prev, next) {
       if (next is AsyncData && next.value != null) {
-        // 1. Tampilkan SnackBar
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Selamat Datang Kembali!'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        final authData = next.value!;
 
-        // 2. KUNCI: Tutup halaman login untuk kembali ke halaman sebelumnya (MainNavigation)
-        // Gunakan mounted check untuk keamanan agar tidak error jika widget sudah di-dispose
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context);
+        if (authData.isVerified == 0) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VerifyPage(email: _emailController.text),
+            ),
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Akun Anda belum aktif. Silakan verifikasi OTP.'),
+              backgroundColor: Colors.orange,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Selamat Datang Kembali!'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
         }
       } else if (next is AsyncError) {
-        // Tampilkan pesan error jika gagal login
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Login Gagal: ${next.error}'),
@@ -60,9 +78,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 77, 80, 129),
-        foregroundColor: AppColors.whiteColor,
+        foregroundColor: Colors.white,
         title: const Text("Login"),
         centerTitle: true,
+        elevation: 0,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -71,7 +90,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 60),
-              // Header Section
               const Text(
                 "Selamat Datang",
                 style: TextStyle(
@@ -121,18 +139,30 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 5),
+
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed:
-                      () {}, // Tambahkan navigasi forgot password jika ada
-                  child: const Text("Lupa Password?"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ForgotPasswordPage(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    "Lupa Password?",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 30),
-
+              const SizedBox(height: 10),
               // Login Button
               SizedBox(
                 width: double.infinity,
@@ -147,7 +177,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               _passwordController.text,
                             ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
+                    backgroundColor: const Color.fromARGB(255, 77, 80, 129),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -173,7 +203,33 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 ),
               ),
 
-              // Error Message
+              const SizedBox(height: 20),
+
+              // Bagian Navigasi ke Register
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Belum punya akun?"),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RegisterPage(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "Daftar Sekarang",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 77, 80, 129),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
               if (authState.hasError)
                 Container(
                   width: double.infinity,
@@ -227,7 +283,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         borderRadius: BorderRadius.circular(12),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.blue, width: 1.5),
+        borderSide: const BorderSide(
+          color: Color.fromARGB(255, 77, 80, 129),
+          width: 1.5,
+        ),
         borderRadius: BorderRadius.circular(12),
       ),
     );

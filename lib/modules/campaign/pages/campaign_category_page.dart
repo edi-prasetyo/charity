@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/app_color.dart';
 import '../controllers/campaign_controller.dart';
 import '../widgets/campaign_card.dart';
 
@@ -18,7 +19,7 @@ class CampaignCategoryPage extends ConsumerWidget {
     final campaignsAsync = ref.watch(campaignsByCategoryProvider(categoryId));
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundBody,
       appBar: AppBar(
         title: Text(categoryName),
         backgroundColor: Colors.white,
@@ -56,7 +57,7 @@ class CampaignCategoryPage extends ConsumerWidget {
           );
         },
         loading: () => const Center(
-          child: CircularProgressIndicator(color: Color(0xFF0D8456)),
+          child: CircularProgressIndicator(color: AppColors.primaryColor),
         ),
         error: (err, stack) => Center(
           child: Column(

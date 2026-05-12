@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
+
 import '../../../core/constants/app_color.dart';
 import '../../campaign/pages/campaign_category_page.dart';
 import '../../category/controllers/category_controller.dart';
@@ -19,14 +20,14 @@ class CategoryWidget extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Loop 3 data pertama dari API
+            // 🔥 Loop kategori dari API
             ...categories.map(
               (cat) => _buildItem(
                 context,
                 label: cat.name,
+                image: cat.image, // ✅ kirim image
                 icon: MingCuteIcons.mgc_hand_heart_line,
                 onTap: () {
-                  // NAVIGASI KE HALAMAN KATEGORI
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -40,6 +41,7 @@ class CategoryWidget extends ConsumerWidget {
               ),
             ),
 
+            // 🔥 Menu "Lainnya"
             _buildItem(
               context,
               label: "Lainnya",
@@ -62,8 +64,9 @@ class CategoryWidget extends ConsumerWidget {
   Widget _buildItem(
     BuildContext context, {
     required String label,
-    required IconData icon,
     required VoidCallback onTap,
+    IconData? icon,
+    String? image,
   }) {
     return Expanded(
       child: InkWell(
@@ -76,11 +79,10 @@ class CategoryWidget extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
-                // color: Color(0xFFE6F4F1),
-                color: AppColors.successLightColor,
+                color: AppColors.separatorGrey,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: AppColors.successColor, size: 28),
+              child: _buildIcon(image, icon),
             ),
             const SizedBox(height: 8),
             Text(
@@ -91,12 +93,39 @@ class CategoryWidget extends ConsumerWidget {
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF334155), // Warna teks abu-abu gelap
+                color: Color(0xFF334155),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  /// 🔥 Widget untuk handle image / fallback icon
+  Widget _buildIcon(String? image, IconData? icon) {
+    if (image != null && image.isNotEmpty) {
+      return ClipOval(
+        child: Image.network(
+          image,
+          width: 28,
+          height: 28,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Icon(
+              icon ?? MingCuteIcons.mgc_hand_heart_line,
+              color: AppColors.successColor,
+              size: 28,
+            );
+          },
+        ),
+      );
+    }
+
+    return Icon(
+      icon ?? MingCuteIcons.mgc_hand_heart_line,
+      color: AppColors.primaryColor,
+      size: 28,
     );
   }
 }

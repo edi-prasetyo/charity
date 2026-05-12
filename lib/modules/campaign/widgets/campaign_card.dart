@@ -93,14 +93,16 @@ class CampaignCard extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFE6F4F1),
+                              color: AppColors.primaryColor.withValues(
+                                alpha: 0.1,
+                              ),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               campaign.category.name,
                               style: const TextStyle(
                                 fontSize: 10,
-                                color: Color(0xFF0D8456),
+                                color: AppColors.primaryColor,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -132,7 +134,7 @@ class CampaignCard extends StatelessWidget {
                             child: LinearProgressIndicator(
                               value: campaign.progress,
                               backgroundColor: Colors.grey.shade200,
-                              color: const Color(0xFF0D8456),
+                              color: AppColors.primaryColor,
                               minHeight: 6,
                             ),
                           ),
@@ -158,7 +160,7 @@ class CampaignCard extends StatelessWidget {
                                       text: TextSpan(
                                         style: const TextStyle(
                                           fontSize: 12,
-                                          color: Color(0xFF0D8456),
+                                          color: AppColors.primaryColor,
                                           fontWeight: FontWeight.bold,
                                         ),
                                         children: [

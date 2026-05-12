@@ -72,11 +72,11 @@ class DonationDetailPage extends StatelessWidget {
                     DateFormat('dd MMM yyyy, HH:mm').format(donation.createdAt),
                   ),
                   const Divider(height: 30),
-                  // _buildDetailRow(
-                  //   'Kampanye',
-                  //   donation.campaign.title,
-                  //   isMultiLine: true,
-                  // ),
+                  _buildDetailRow(
+                    'Kampanye',
+                    donation.campaign.title,
+                    isMultiLine: true,
+                  ),
                   const SizedBox(height: 16),
                   _buildDetailRow(
                     'Total Donasi',

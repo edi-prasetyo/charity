@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
 import 'package:intl/intl.dart';
+import '../../../core/constants/app_color.dart';
+import '../../../core/widgets/app_button.dart';
 import '../controllers/campaign_store_controller.dart';
 import '../models/campaign_model.dart';
 import 'donation_payment_webview.dart';
@@ -64,7 +66,7 @@ class DonationPreviewPage extends ConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA), // Soft background color
+      backgroundColor: AppColors.bodyColor,
       appBar: AppBar(
         title: const Text(
           'Konfirmasi Donasi',
@@ -87,13 +89,13 @@ class DonationPreviewPage extends ConsumerWidget {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: AppColors.primaryColor.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       MingCuteIcons.mgc_paper_line,
                       size: 40,
-                      color: Colors.blue,
+                      color: AppColors.primaryColor,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -119,7 +121,7 @@ class DonationPreviewPage extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -132,7 +134,9 @@ class DonationPreviewPage extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(vertical: 24),
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.03),
+                            color: AppColors.primaryColor.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: const BorderRadius.vertical(
                               top: Radius.circular(24),
                             ),
@@ -156,7 +160,7 @@ class DonationPreviewPage extends ConsumerWidget {
                                 style: const TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.w800,
-                                  color: Colors.blue,
+                                  color: AppColors.primaryColor,
                                 ),
                               ),
                             ],
@@ -222,7 +226,7 @@ class DonationPreviewPage extends ConsumerWidget {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, -5),
                 ),
@@ -254,59 +258,81 @@ class DonationPreviewPage extends ConsumerWidget {
                 SizedBox(
                   width: double.infinity,
                   height: 56,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    onPressed: isLoading
-                        ? null
-                        : () {
-                            ref
-                                .read(donationControllerProvider.notifier)
-                                .submitDonation(
-                                  campaignId: campaign.id,
-                                  amount: int.parse(
-                                    donationData['amount'].toString(),
-                                  ),
-                                  name: donationData['name'],
-                                  email: donationData['email'],
-                                  phone: donationData['phone'],
-                                  message: donationData['message'],
-                                  isAnonymous: donationData['is_anonymous'],
-                                );
-                          },
-                    child: isLoading
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 3,
+                  child: AppButton(
+                    title: "Konfirmasi & Bayar",
+                    type: AppButtonType.primary,
+                    isLoading: isLoading,
+                    rightIcon: MingCuteIcons.mgc_arrow_right_line,
+                    onPressed: () {
+                      ref
+                          .read(donationControllerProvider.notifier)
+                          .submitDonation(
+                            campaignId: campaign.id,
+                            amount: int.parse(
+                              donationData['amount'].toString(),
                             ),
-                          )
-                        : const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Konfirmasi & Bayar',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              Icon(
-                                MingCuteIcons.mgc_arrow_right_line,
-                                size: 20,
-                              ),
-                            ],
-                          ),
+                            name: donationData['name'],
+                            email: donationData['email'],
+                            phone: donationData['phone'],
+                            message: donationData['message'],
+                            isAnonymous: donationData['is_anonymous'],
+                          );
+                    },
                   ),
+
+                  // ElevatedButton(
+                  //   style: ElevatedButton.styleFrom(
+                  //     backgroundColor: Colors.blue,
+                  //     foregroundColor: Colors.white,
+                  //     elevation: 0,
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(16),
+                  //     ),
+                  //   ),
+                  //   onPressed: isLoading
+                  //       ? null
+                  //       : () {
+                  //           ref
+                  //               .read(donationControllerProvider.notifier)
+                  //               .submitDonation(
+                  //                 campaignId: campaign.id,
+                  //                 amount: int.parse(
+                  //                   donationData['amount'].toString(),
+                  //                 ),
+                  //                 name: donationData['name'],
+                  //                 email: donationData['email'],
+                  //                 phone: donationData['phone'],
+                  //                 message: donationData['message'],
+                  //                 isAnonymous: donationData['is_anonymous'],
+                  //               );
+                  //         },
+                  //   child: isLoading
+                  //       ? const SizedBox(
+                  //           width: 24,
+                  //           height: 24,
+                  //           child: CircularProgressIndicator(
+                  //             color: Colors.white,
+                  //             strokeWidth: 3,
+                  //           ),
+                  //         )
+                  //       : const Row(
+                  //           mainAxisAlignment: MainAxisAlignment.center,
+                  //           children: [
+                  //             Text(
+                  //               'Konfirmasi & Bayar',
+                  //               style: TextStyle(
+                  //                 fontSize: 16,
+                  //                 fontWeight: FontWeight.bold,
+                  //               ),
+                  //             ),
+                  //             SizedBox(width: 8),
+                  //             Icon(
+                  //               MingCuteIcons.mgc_arrow_right_line,
+                  //               size: 20,
+                  //             ),
+                  //           ],
+                  //         ),
+                  // ),
                 ),
               ],
             ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/constants/app_color.dart';
 import '../controllers/campaign_controller.dart';
 import '../widgets/campaign_card.dart';
 
@@ -11,7 +12,7 @@ class CampaignPage extends ConsumerWidget {
     final campaignsAsync = ref.watch(campaignListProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.backgroundBody,
       appBar: AppBar(
         title: const Text("Daftar Campaign"),
         centerTitle: true,

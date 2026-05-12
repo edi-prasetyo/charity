@@ -3,7 +3,7 @@ import '../../../core/services/public_service.dart';
 import '../models/category_model.dart';
 
 final categoryProvider = FutureProvider<List<Category>>((ref) async {
-  final dio = ref.watch(dioProvider);
+  final dio = ref.watch(publicProvider);
   final response = await dio.get('/categories');
 
   // Mengambil list dari key 'data' sesuai response API

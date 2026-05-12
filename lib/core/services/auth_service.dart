@@ -10,6 +10,15 @@ class AuthService {
   // Check if token exists
   Future<bool> isLoggedIn() async {
     final token = await _secureService.getToken();
+    final verified = await _secureService.getIsVerified();
+
+    // User dianggap login jika token ada DAN status verified adalah "1"
+    return token != null && verified == "1";
+  }
+
+  // Tambahkan fungsi pembantu jika suatu saat butuh cek token saja tanpa verified
+  Future<bool> hasToken() async {
+    final token = await _secureService.getToken();
     return token != null;
   }
 

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ming_cute_icons/ming_cute_icons.dart';
 
-import '../../campaign/pages/donation_payment_webview.dart';
+import '../../../core/constants/app_color.dart';
 import '../controllers/donation_controller.dart';
 import '../widgets/donation_card_widget.dart';
 
@@ -14,6 +15,7 @@ class DonationPage extends ConsumerWidget {
     final donationsAsync = ref.watch(myDonationsProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.backgroundBody,
       appBar: AppBar(
         title: const Text(
           'Donasi Saya',
@@ -40,11 +42,39 @@ class DonationPage extends ConsumerWidget {
           data: (donations) {
             if (donations.isEmpty) {
               return SingleChildScrollView(
-                // physics ini penting agar halaman kosong tetap bisa ditarik untuk refresh
                 physics: const AlwaysScrollableScrollPhysics(),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.8,
-                  child: const Center(child: Text('Belum ada riwayat donasi')),
+                child: Container(
+                  height:
+                      MediaQuery.of(context).size.height *
+                      0.7, // Sesuaikan tinggi
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Ikon MingCute (Gunakan package ming_cute_icons)
+                      Icon(
+                        MingCuteIcons.mgc_paper_line,
+                        size: 80,
+                        color: Colors.grey[300],
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Tidak Ada Donasi...',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Anda belum memiliki riwayat donasi. Mulailah berbagi kebaikan hari ini!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
                 ),
               );
             }

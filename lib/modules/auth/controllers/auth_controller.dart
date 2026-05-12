@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/api_service.dart';
-import '../models/auth_model.dart';
 import '../../../core/services/network_service.dart';
+import '../../profile/controllers/profile_controller.dart';
+import '../models/auth_model.dart';
+import '../../../core/services/public_service.dart';
 import '../../../core/services/secure_services.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -18,48 +21,41 @@ class AuthController extends AsyncNotifier<AuthResponse?> {
     final token = await ref.read(secureStorageProvider).getToken();
     final refresh = await ref.read(secureStorageProvider).getRefreshToken();
     final expiresStr = await ref.read(secureStorageProvider).getExpiresIn();
+    final verifiedStr = await ref
+        .read(secureStorageProvider)
+        .getIsVerified(); // Ambil dari storage
 
     if (token != null && refresh != null) {
-      final expires = int.tryParse(expiresStr ?? '0') ?? 0;
-      print('DEBUG: [AUTH_START] Memulihkan sesi. Expiry: $expires');
-
       return AuthResponse(
         accessToken: token,
         refreshToken: refresh,
-        expiresIn: expires,
+        expiresIn: int.tryParse(expiresStr ?? '0') ?? 0,
+        isVerified: int.tryParse(verifiedStr ?? '0') ?? 0,
       );
     }
-
-    print('DEBUG: [AUTH_START] Tidak ada sesi ditemukan.');
     return null;
   }
 
   Future<void> login(String email, String password) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final dio = ref.read(dioProvider);
+      final dio = ref.read(publicProvider);
 
-      // --- AMBIL FCM TOKEN ---
       String? fcmToken;
       try {
         fcmToken = await FirebaseMessaging.instance.getToken();
-        print('DEBUG: [FCM_TOKEN] Berhasil mendapatkan token: $fcmToken');
       } catch (e) {
-        print('DEBUG: [FCM_TOKEN] Gagal mendapatkan token: $e');
-        // Tetap lanjut login meskipun FCM gagal (opsional, tergantung kebijakan Anda)
+        print('DEBUG: [FCM_TOKEN] Gagal: $e');
       }
 
       final response = await dio.post(
         '/login',
-        data: {
-          'email': email,
-          'password': password,
-          'fcm_token': fcmToken, // Tambahkan di sini
-        },
+        data: {'email': email, 'password': password, 'fcm_token': fcmToken},
       );
 
       final authData = AuthResponse.fromJson(response.data);
 
+      // 1. Pastikan simpan token selesai sempurna
       await ref
           .read(secureStorageProvider)
           .saveTokens(
@@ -68,9 +64,94 @@ class AuthController extends AsyncNotifier<AuthResponse?> {
             authData.expiresIn,
           );
 
-      print('DEBUG: [LOGIN] Berhasil. Expiry: ${authData.expiresIn}');
+      await ref
+          .read(secureStorageProvider)
+          .saveIsVerified(authData.isVerified.toString());
+
+      // JANGAN panggil invalidate di sini jika bikin error,
+      // kita gunakan cara di bawah (poin 2)
       return authData;
     });
+  }
+
+  Future<bool> forgotPassword(String email) async {
+    try {
+      // Kita tidak mengubah state utama menjadi loading agar tidak mengganggu UI Login
+      final dio = ref.read(publicProvider);
+      final response = await dio.post(
+        '/forgot-password',
+        data: {"email": email},
+        // Gunakan header null untuk menghindari masalah Unauthenticated jika ada token lama
+        options: Options(headers: {'Authorization': null}),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('DEBUG: [FORGOT_PASSWORD] Gagal: $e');
+      rethrow;
+    }
+  }
+
+  Future verifyOtp(String email, String otp) async {
+    state = const AsyncLoading();
+    try {
+      final dio = ref.read(dioProvider);
+      final response = await dio.post(
+        '/verify-otp',
+        data: {"email": email, "otp": otp},
+      );
+
+      if (response.statusCode == 200) {
+        // 1. Ambil data saat ini
+        final currentData = state.value;
+
+        if (currentData != null) {
+          // 2. Buat objek baru dengan status isVerified = 1
+          final updatedData = AuthResponse(
+            accessToken: currentData.accessToken,
+            refreshToken: currentData.refreshToken,
+            expiresIn: currentData.expiresIn,
+            isVerified: 1, // Set manual ke aktif
+          );
+
+          // 3. Simpan perubahan ke Secure Storage agar saat restart tidak balik ke VerifyPage
+          await ref.read(secureStorageProvider).saveIsVerified("1");
+
+          // 4. Update state global
+          state = AsyncData(updatedData);
+        }
+
+        print('DEBUG: [VERIFY_OTP] Berhasil diverifikasi.');
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('DEBUG: [VERIFY_OTP] Gagal: $e');
+      // Jika gagal, kembalikan state sebelumnya agar loading berhenti
+      state = AsyncData(state.value);
+      rethrow; // Biarkan UI menangkap error untuk menampilkan SnackBar
+    }
+  }
+
+  Future<bool> resendOtp(String email) async {
+    // Kita tidak set state = loading agar UI tidak blank,
+    // tapi kita return boolean agar tombol di UI bisa tahu hasilnya.
+    try {
+      final dio = ref.read(dioProvider);
+      final response = await dio.post('/resend-otp', data: {"email": email});
+
+      if (response.statusCode == 200) {
+        print('DEBUG: [RESEND_OTP] ${response.data['message']}');
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('DEBUG: [RESEND_OTP] Gagal: $e');
+      rethrow;
+    }
   }
 
   Future<bool> refreshToken() async {
@@ -114,15 +195,20 @@ class AuthController extends AsyncNotifier<AuthResponse?> {
   }
 
   Future<void> logout() async {
-    state = const AsyncLoading(); // Set loading di awal proses
+    state = const AsyncLoading();
     try {
       final dio = ref.read(dioProvider);
       await dio.post('/logout');
     } catch (e) {
-      print('DEBUG: [LOGOUT] Gagal tapi tetap hapus lokal.');
+      debugPrint('DEBUG: [LOGOUT] API Gagal: $e');
     } finally {
+      // 1. Bersihkan storage
       await ref.read(secureStorageProvider).clearAll();
-      state = const AsyncData(null); // Selesai loading dan data jadi null
+
+      // 2. Set state ke null.
+      // Karena profileProvider me-watch provider ini,
+      // dia akan otomatis re-build/error saat state jadi null.
+      state = const AsyncData(null);
     }
   }
 
