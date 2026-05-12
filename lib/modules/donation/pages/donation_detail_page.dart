@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
+import '../../../core/constants/app_color.dart';
+import '../../../core/widgets/app_button.dart';
 import '../../campaign/pages/donation_payment_webview.dart';
 import '../models/donation_model.dart';
 
@@ -37,7 +39,7 @@ class DonationDetailPage extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 20,
                   ),
                 ],
@@ -47,7 +49,9 @@ class DonationDetailPage extends StatelessWidget {
                     ? MingCuteIcons.mgc_time_line
                     : MingCuteIcons.mgc_check_circle_line,
                 size: 40,
-                color: isPending ? Colors.orange : Colors.green,
+                color: isPending
+                    ? AppColors.warningColor
+                    : AppColors.successColor,
               ),
             ),
             const SizedBox(height: 16),
@@ -97,7 +101,9 @@ class DonationDetailPage extends StatelessWidget {
           ? Container(
               padding: const EdgeInsets.all(20),
               decoration: const BoxDecoration(color: Colors.white),
-              child: ElevatedButton(
+              child: AppButton(
+                title: "Lanjutkan Pembayaran",
+                type: AppButtonType.primary,
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -109,18 +115,6 @@ class DonationDetailPage extends StatelessWidget {
                     ),
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 55),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text(
-                  'Lanjutkan Pembayaran',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
               ),
             )
           : null,
@@ -152,7 +146,7 @@ class DonationDetailPage extends StatelessWidget {
               style: TextStyle(
                 fontWeight: isBoldValue ? FontWeight.w800 : FontWeight.w500,
                 fontSize: isBoldValue ? 15 : 13,
-                color: isBoldValue ? Colors.blue : Colors.black87,
+                color: isBoldValue ? AppColors.primaryColor : Colors.black87,
               ),
             ),
           ),

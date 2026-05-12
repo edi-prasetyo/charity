@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ming_cute_icons/ming_cute_icons.dart';
+import '../../../core/constants/app_color.dart';
 import '../models/donation_model.dart';
 import '../pages/donation_detail_page.dart';
 
@@ -48,12 +49,12 @@ class DonationCardWidget extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
+                        color: AppColors.primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Icon(
                         MingCuteIcons.mgc_love_line,
-                        color: Colors.blue,
+                        color: AppColors.primaryColor,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -119,7 +120,7 @@ class DonationCardWidget extends StatelessWidget {
                           style: const TextStyle(
                             fontWeight: FontWeight.w800,
                             fontSize: 16,
-                            color: Colors.blue,
+                            color: AppColors.primaryColor,
                           ),
                         ),
                       ],
@@ -137,12 +138,14 @@ class DonationCardWidget extends StatelessWidget {
 
   Widget _buildStatusBadge(String status) {
     Color color = status == 'success'
-        ? Colors.green
-        : (status == 'pending' ? Colors.orange : Colors.red);
+        ? AppColors.successColor
+        : (status == 'pending'
+              ? AppColors.warningColor
+              : AppColors.dangerColor);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(30),
       ),
       child: Text(
