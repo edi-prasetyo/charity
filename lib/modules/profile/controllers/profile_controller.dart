@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/services/network_service.dart';
 import '../../auth/controllers/auth_controller.dart';
@@ -33,3 +32,16 @@ final profileProvider = FutureProvider.autoDispose<ProfileModel>((ref) async {
     throw Exception(response.data['message'] ?? 'Gagal fetch profile');
   }
 });
+
+final updatePasswordProvider = FutureProvider.family
+    .autoDispose<String, Map<String, String>>((ref, body) async {
+      final dio = ref.read(dioProvider);
+
+      final response = await dio.post('/profile/password', data: body);
+
+      if (response.data['status'] == 'success') {
+        return response.data['message'];
+      } else {
+        throw Exception(response.data['message'] ?? 'Gagal update password');
+      }
+    });
