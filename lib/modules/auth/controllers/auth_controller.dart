@@ -154,44 +154,41 @@ class AuthController extends AsyncNotifier<AuthResponse?> {
     }
   }
 
-  Future<bool> refreshToken() async {
-    try {
-      final refresh = await ref.read(secureStorageProvider).getRefreshToken();
-      if (refresh == null) throw Exception("No Refresh Token Found");
+  // Future<bool> refreshToken() async {
+  //   try {
+  //     final refresh = await ref.read(secureStorageProvider).getRefreshToken();
+  //     if (refresh == null) return false;
 
-      print('DEBUG: [REFRESH] Menjalankan request refresh...');
+  //     // Gunakan instance Dio baru (tanpa interceptor auth) untuk request refresh
+  //     final dioRefresh = Dio();
+  //     final response = await dioRefresh.post(
+  //       '${ApiService.baseUrl}/refresh',
+  //       data: {'refresh_token': refresh},
+  //     );
 
-      final dio = Dio();
-      final response = await dio.post(
-        '${ApiService.baseUrl}/refresh',
-        data: {'refresh_token': refresh},
-      );
+  //     final newData = AuthResponse.fromJson(response.data);
 
-      final newData = AuthResponse.fromJson(response.data);
+  //     // Update Storage
+  //     await ref
+  //         .read(secureStorageProvider)
+  //         .saveTokens(
+  //           newData.accessToken,
+  //           newData.refreshToken,
+  //           newData.expiresIn,
+  //         );
 
-      await ref
-          .read(secureStorageProvider)
-          .saveTokens(
-            newData.accessToken,
-            newData.refreshToken,
-            newData.expiresIn,
-          );
+  //     // Update State (Penting agar UI tetap sinkron)
+  //     state = AsyncData(newData);
+  //     return true;
+  //   } catch (e) {
+  //     // Jika refresh gagal (misal refresh token expired), langsung logout
+  //     await logout();
+  //     return false;
+  //   }
+  // }
 
-      // KUNCI: Update state agar UI tetap sinkron
-      state = AsyncData(newData);
-
-      print('DEBUG: [REFRESH] Berhasil memperbarui token.');
-      return true;
-    } catch (e) {
-      print('DEBUG: [REFRESH] Gagal: $e. Melakukan auto-logout...');
-
-      // Jika refresh gagal, bersihkan semua & kembalikan ke Login via Wrapper
-      await ref.read(secureStorageProvider).clearAll();
-
-      // KUNCI: Set state ke null untuk mentrigger redirect di AuthWrapper
-      state = const AsyncData(null);
-      return false;
-    }
+  void updateState(AuthResponse newData) {
+    state = AsyncData(newData);
   }
 
   Future<void> logout() async {

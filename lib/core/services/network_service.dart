@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../modules/auth/models/auth_model.dart';
 import 'api_service.dart';
 import 'secure_services.dart';
 import '../../modules/auth/controllers/auth_controller.dart';
@@ -8,8 +9,6 @@ final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
       baseUrl: ApiService.baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      // PERBAIKAN 1: Tambahkan header ini agar Laravel mengirim JSON, bukan HTML
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -17,59 +16,80 @@ final dioProvider = Provider<Dio>((ref) {
     ),
   );
 
+  // Flag untuk mencegah multiple refresh & infinite loop
+  bool isRefreshing = false;
+
   dio.interceptors.add(
     InterceptorsWrapper(
       onRequest: (options, handler) async {
         final token = await ref.read(secureStorageProvider).getToken();
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
-          print(
-            'DEBUG: [DIO] Mengirim Request dengan Token: ${token.substring(0, 10)}...',
-          );
         }
         return handler.next(options);
       },
       onError: (error, handler) async {
-        // PERBAIKAN 2: Pastikan pengecekan error lebih kuat
-        print('DEBUG: [DIO] Terjadi Error: ${error.response?.statusCode}');
+        final path = error.requestOptions.path;
 
-        // Jika status 401 (Unauthorized)
-        if (error.response?.statusCode == 401) {
-          print('DEBUG: [DIO] Access Token Expired. Mencoba Refresh Token...');
+        // 1. Cek status 401 dan pastikan bukan dari endpoint krusial
+        if (error.response?.statusCode == 401 &&
+            !path.contains('/login') &&
+            !path.contains('/refresh')) {
+          if (!isRefreshing) {
+            isRefreshing = true;
 
-          final success = await ref
-              .read(authControllerProvider.notifier)
-              .refreshToken();
-
-          if (success) {
-            print('DEBUG: [DIO] Refresh Berhasil. Mengulang request...');
-
-            // Ambil token baru dari storage
-            final newToken = await ref.read(secureStorageProvider).getToken();
-
-            // Update header request yang gagal tadi
-            error.requestOptions.headers['Authorization'] = 'Bearer $newToken';
-
-            // PERBAIKAN 3: Gunakan instance dio yang sama untuk retry
             try {
-              final response = await dio.fetch(error.requestOptions);
-              return handler.resolve(response);
-            } on DioException catch (e) {
-              return handler.next(e);
+              print('DEBUG: [INTERCEPTOR] Menjalankan Refresh Token...');
+
+              final refreshToken = await ref
+                  .read(secureStorageProvider)
+                  .getRefreshToken();
+
+              // 2. Hit API Refresh langsung di sini (Tanpa fungsi di Controller)
+              final refreshDio =
+                  Dio(); // Pakai instance baru agar tidak masuk interceptor ini
+              final response = await refreshDio.post(
+                '${ApiService.baseUrl}/refresh',
+                data: {'refresh_token': refreshToken},
+              );
+
+              final newData = AuthResponse.fromJson(response.data);
+
+              // 3. Simpan ke Secure Storage
+              await ref
+                  .read(secureStorageProvider)
+                  .saveTokens(
+                    newData.accessToken,
+                    newData.refreshToken,
+                    newData.expiresIn,
+                  );
+
+              // 4. Update State AuthController secara paksa agar UI Sinkron
+              // Ini penting agar state global aplikasi tidak jadi null/logout
+              ref.read(authControllerProvider.notifier).updateState(newData);
+
+              isRefreshing = false;
+
+              // 5. Ulangi Request yang gagal tadi
+              final opts = error.requestOptions;
+              opts.headers['Authorization'] = 'Bearer ${newData.accessToken}';
+
+              final retryResponse = await dio.fetch(opts);
+              return handler.resolve(retryResponse);
+            } catch (e) {
+              isRefreshing = false;
+              print('DEBUG: [INTERCEPTOR] Refresh Gagal total: $e');
+
+              // Jika refresh gagal, paksa logout melalui controller
+              ref.read(authControllerProvider.notifier).logout();
+              return handler.next(error);
             }
-          } else {
-            print('DEBUG: [DIO] Refresh Gagal. State otomatis jadi null.');
-            // Jangan lupa kirim error ke handler agar catch di controller terpanggil
-            return handler.next(error);
           }
         }
-
         return handler.next(error);
       },
     ),
   );
-
-  dio.interceptors.add(LogInterceptor(responseBody: true, requestBody: true));
 
   return dio;
 });
